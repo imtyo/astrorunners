@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Dashboard ITB Ultra 178K AstroRunners</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #f4f6f8;
+            --card: #fff;
+            --tx: #14202b;
+            --mu: #5d6b78;
+            --bd: #dde3e9;
+            --ac: #e8590c;
+            --ac2: #1c7ed6;
+            --night: rgba(30, 50, 120, .10);
+            --sel: rgba(232, 89, 12, .16);
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px)
+        }
+
+        @media (prefers-color-scheme:dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0e141b;
+                --card: #17202a;
+                --tx: #e8edf2;
+                --mu: #93a1ae;
+                --bd: #27333f;
+                --ac: #ff922b;
+                --ac2: #4dabf7;
+                --night: rgba(120, 140, 255, .10);
+                --sel: rgba(255, 146, 43, .22);
+                color-scheme: dark
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0e141b;
+            --card: #17202a;
+            --tx: #e8edf2;
+            --mu: #93a1ae;
+            --bd: #27333f;
+            --ac: #ff922b;
+            --ac2: #4dabf7;
+            --night: rgba(120, 140, 255, .10);
+            --sel: rgba(255, 146, 43, .22);
+            color-scheme: dark
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-padding-top: env(safe-area-inset-top, 0px)
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--tx);
+            font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+        }
+
+        .w {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 20px 16px 40px
+        }
+
+        h1 {
+            font-size: 26px;
+            margin: 0 0 2px;
+            letter-spacing: -.5px
+        }
+
+        .sub {
+            color: var(--mu);
+            margin: 0 0 18px
+        }
+
+        h2 {
+            font-size: 15px;
+            margin: 0 0 2px
+        }
+
+        .hint {
+            color: var(--mu);
+            font-size: 12px;
+            margin: 0 0 10px
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px
+        }
+
+        .k {
+            background: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 12px 14px;
+            border-top: 3px solid var(--ac)
+        }
+
+        .k:nth-child(even) {
+            border-top-color: var(--ac2)
+        }
+
+        .k b {
+            display: block;
+            font-size: 22px;
+            letter-spacing: -.5px
+        }
+
+        .k span {
+            color: var(--mu);
+            font-size: 12px
+        }
+
+        .c {
+            background: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+            min-width: 0
+        }
+
+        .g2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        @media(max-width:820px) {
+            .g2 {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .cv {
+            position: relative;
+            height: 300px
+        }
+
+        .cv.s {
+            height: 260px
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 6px 0 10px
+        }
+
+        button {
+            font: inherit;
+            border: 1px solid var(--bd);
+            background: transparent;
+            color: var(--tx);
+            border-radius: 999px;
+            padding: 4px 12px;
+            cursor: pointer
+        }
+
+        button.on {
+            background: var(--ac);
+            border-color: var(--ac);
+            color: #fff
+        }
+
+        .ins {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 10px
+        }
+
+        .ins div {
+            border-left: 3px solid var(--ac2);
+            padding: 2px 10px;
+            background: transparent
+        }
+
+        .ins b {
+            display: block
+        }
+
+        .tw {
+            overflow-x: auto
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 720px;
+            font-size: 13px
+        }
+
+        th,
+        td {
+            padding: 6px 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--bd);
+            white-space: nowrap
+        }
+
+        th:first-child,
+        td:first-child,
+        th:nth-child(2),
+        td:nth-child(2),
+        th:last-child,
+        td:last-child {
+            text-align: left
+        }
+
+        th {
+            color: var(--mu);
+            font-weight: 600;
+            font-size: 12px
+        }
+
+        tbody tr {
+            cursor: pointer
+        }
+
+        tbody tr:hover {
+            background: var(--sel)
+        }
+
+        tr.sel {
+            background: var(--sel)
+        }
+
+        svg text {
+            fill: var(--tx);
+            font-size: 11px
+        }
+
+        .st {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+            gap: 8px;
+            margin: 10px 0
+        }
+
+        .st div {
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 6px 8px
+        }
+
+        .st b {
+            display: block;
+            font-size: 15px
+        }
+
+        .st span {
+            font-size: 11px;
+            color: var(--mu)
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 999px;
+            color: #fff;
+            font-size: 12px
+        }
+
+        ul.l {
+            margin: 4px 0 10px 18px;
+            padding: 0
+        }
+
+        .note {
+            color: var(--mu);
+            font-size: 12px;
+            margin-top: 8px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w">
+        <h1>🏃 ITB Ultra 178K · AstroRunners</h1>
+        <p class="sub">Start 21:12 WIB · 15 water station · klik bar, baris tabel, atau titik peta untuk menyorot satu
+            leg di semua grafik.</p>
+        <div class="kpis" id="kpis"></div>
+        <div class="c">
+            <h2>Profil elevasi &amp; malam/siang</h2>
+            <p class="hint">Area biru = perkiraan malam (sebelum 05:45 &amp; setelah 17:50 WIB). Garis putus = water
+                station.</p>
+            <div class="cv"><canvas id="ce"></canvas></div>
+        </div>
+        <div class="c">
+            <h2>Cuaca di sepanjang rute</h2>
+            <p class="hint">Data model Open-Meteo pada jam kedatangan di tiap titik (16–18 Okt 2026). Area biru = malam;
+                garis putus = water station.</p>
+            <div class="cv"><canvas id="cw"></canvas></div>
+        </div>
+        <div class="c">
+            <h2>Cuaca vs pace per leg</h2>
+            <p class="hint">Batang = pace, garis merah = suhu terasa rata-rata leg.</p>
+            <div class="cv s"><canvas id="cp"></canvas></div>
+        </div>
+        <div class="c">
+            <h2>Performa per leg</h2>
+            <div class="tabs" id="tabs"></div>
+            <div class="cv s"><canvas id="cl"></canvas></div>
+        </div>
+        <div class="g2">
+            <div class="c">
+                <h2>Peta rute</h2>
+                <p class="hint">Warna garis mengikuti pace (biru = cepat, merah = lambat).</p>
+                <div id="map"></div>
+            </div>
+            <div class="c">
+                <h2>Tanjakan vs pace</h2>
+                <p class="hint">Setiap titik = satu leg. Sumbu X: gain per km.</p>
+                <div class="cv s"><canvas id="cs"></canvas></div>
+            </div>
+        </div>
+        <div class="c">
+            <h2>Peringkat pelari (disesuaikan medan)</h2>
+            <p class="hint">Asumsi: setiap nama adalah pelari yang menempuh satu leg (estafet). Pace setara datar (GAP)
+                memperhitungkan tanjakan/turunan di leg masing-masing; makin kecil makin baik. Warna batang GAP =
+                kategori.</p>
+            <div class="ins" id="rins" style="margin-bottom:12px"></div>
+            <div class="cv"><canvas id="cr"></canvas></div>
+        </div>
+        <div class="c">
+            <h2>Profil pelari</h2>
+            <div class="tabs" id="rtabs"></div>
+            <div class="g2">
+                <div id="rcard"></div>
+                <div class="cv s"><canvas id="cm"></canvas></div>
+            </div>
+            <p class="note">Kategori bersifat indikatif: tiap pelari hanya menempuh satu leg, sehingga kemampuan
+                tanjakan dan kebugaran dasar tidak bisa dipisahkan sepenuhnya; pelari hanya dibandingkan lewat jenis
+                medan legnya. Kantuk, nutrisi, waktu di WS, dan cuaca ikut memengaruhi. GAP memakai model biaya energi
+                Minetti dengan kredit turunan dikurangi separuh.</p>
+        </div>
+        <div class="c">
+            <h2>Rute terberat &amp; termudah</h2>
+            <p class="hint">Skor kesulitan 0–100 = 50% faktor biaya energi medan, 30% tanjakan per km, 20% suhu terasa.
+            </p>
+            <div class="cv s"><canvas id="cd"></canvas></div>
+            <div class="ins" id="dtxt" style="margin-top:12px"></div>
+        </div>
+        <div class="c">
+            <h2>Temuan utama</h2>
+            <div class="ins" id="ins"></div>
+        </div>
+        <div class="c">
+            <h2>Rincian leg</h2>
+            <div class="tw">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Leg</th>
+                            <th>Dari → Ke</th>
+                            <th>Jarak</th>
+                            <th>Waktu leg</th>
+                            <th>Pace</th>
+                            <th>Naik</th>
+                            <th>Turun</th>
+                            <th>Elev. tiba</th>
+                            <th>Kumulatif</th>
+                            <th>Suhu / terasa</th>
+                            <th>RH</th>
+                            <th>Radiasi</th>
+                            <th>Jam tiba</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb"></tbody>
+                </table>
+            </div>
+            <p class="note">Catatan data: astro.csv berisi 17 baris catatan waktu (dua di antaranya berlabel “Start”,
+                dan tidak ada baris “Finish”). Karena jumlahnya sama dengan 17 titik di waypoints.json, baris dipetakan
+                berurutan: Start, WS1…WS15, Finish. Kolom Name ditafsirkan sebagai pelari yang menempuh leg yang
+                berakhir di titik tersebut (estafet: satu pelari, satu leg). Naik/turun dihitung dari data.csv
+                (dihaluskan), sehingga merupakan estimasi. Cuaca berasal dari model Open-Meteo (resolusi ± 10 km), bukan
+                pengukuran stasiun; nilai per leg adalah rata-rata kedua titik ujungnya. Dengan hanya 16 leg, korelasi
+                bersifat indikatif dan bercampur dengan waktu istirahat di WS, kelelahan, dan kantuk.</p>
+        </div>
+    </div>
+    <script>
+        const D = { "wp": [{ "n": "Start Line", "type": "start", "km": 0.0, "lat": -6.224053, "lon": 106.803673, "t": 0, "name": "Argya Rangga Wicaksono", "ele": 14.9, "cg": 0.0, "cl": 0.0 }, { "n": "WS1", "type": "water", "km": 12.3, "lat": -6.291806, "lon": 106.809316, "t": 4832, "name": "Argya Rangga Wicaksono", "ele": 34.4, "cg": 66.1, "cl": 46.6 }, { "n": "WS2", "type": "water", "km": 23.6, "lat": -6.353946, "lon": 106.836903, "t": 10866, "name": "Nadhilah Mustikarini", "ele": 56.2, "cg": 123.3, "cl": 82.0 }, { "n": "WS3", "type": "water", "km": 34.2, "lat": -6.426998, "lon": 106.858105, "t": 16865, "name": "Nabila Andary Soraya", "ele": 110.7, "cg": 193.1, "cl": 97.2 }, { "n": "WS4", "type": "water", "km": 44.4, "lat": -6.505424, "lon": 106.843653, "t": 22372, "name": "Yudhi Ferraro", "ele": 149.2, "cg": 243.5, "cl": 109.2 }, { "n": "WS5", "type": "water", "km": 55.0, "lat": -6.587784, "lon": 106.805672, "t": 29984, "name": "Sanny Marselina", "ele": 243.5, "cg": 346.9, "cl": 118.2 }, { "n": "WS6", "type": "water", "km": 65.5, "lat": -6.662896, "lon": 106.854814, "t": 35653, "name": "Muhammad Doni Setiawan", "ele": 492.5, "cg": 606.1, "cl": 128.4 }, { "n": "WS7", "type": "water", "km": 76.7, "lat": -6.68058, "lon": 106.933047, "t": 42626, "name": "Muhammad Daud", "ele": 832.6, "cg": 986.8, "cl": 169.0 }, { "n": "WS8", "type": "water", "km": 87.7, "lat": -6.69904, "lon": 106.994016, "t": 49389, "name": "Bayu Septiadi", "ele": 1410.1, "cg": 1577.6, "cl": 182.3 }, { "n": "WS9", "type": "water", "km": 99.0, "lat": -6.745421, "lon": 107.047782, "t": 54717, "name": "Yonathan Firdian Saragih", "ele": 1090.0, "cg": 1711.3, "cl": 636.2 }, { "n": "WS10", "type": "water", "km": 109.8, "lat": -6.802082, "lon": 107.102462, "t": 61468, "name": "Juan Arga Valent Manurung", "ele": 618.1, "cg": 1778.8, "cl": 1175.6 }, { "n": "WS11", "type": "water", "km": 120.8, "lat": -6.797371, "lon": 107.195033, "t": 67069, "name": "M. Fathir", "ele": 312.4, "cg": 1778.8, "cl": 1481.2 }, { "n": "WS12", "type": "water", "km": 132.6, "lat": -6.810575, "lon": 107.292736, "t": 74051, "name": "Ubaydillah Yus'an", "ele": 275.5, "cg": 1814.8, "cl": 1554.2 }, { "n": "WS13", "type": "water", "km": 144.3, "lat": -6.823086, "lon": 107.387971, "t": 82415, "name": "Rafli Laksamana", "ele": 417.2, "cg": 1989.0, "cl": 1586.7 }, { "n": "WS14", "type": "water", "km": 155.6, "lat": -6.834583, "lon": 107.469317, "t": 88970, "name": "Glagah Putih", "ele": 710.1, "cg": 2325.2, "cl": 1630.0 }, { "n": "WS15", "type": "water", "km": 166.7, "lat": -6.879743, "lon": 107.550977, "t": 95498, "name": "Anton Timur Jaelani", "ele": 765.4, "cg": 2429.4, "cl": 1679.0 }, { "n": "Finish Line", "type": "finish", "km": 178.55, "lat": -6.89103, "lon": 107.61026, "t": 103836, "name": "Mahasena Putra", "ele": 773.7, "cg": 2499.1, "cl": 1740.4 }], "prof": [[0.0, 15], [0.3, 11], [0.6, 18], [0.9, 14], [1.2, 13], [1.5, 12], [1.8, 10], [2.1, 15], [2.4, 16], [2.7, 17], [3.0, 16], [3.3, 20], [3.6, 18], [3.9, 20], [4.2, 23], [4.5, 21], [4.8, 27], [5.1, 26], [5.4, 26], [5.7, 25], [6.0, 27], [6.3, 29], [6.6, 28], [6.9, 29], [7.2, 29], [7.5, 29], [7.8, 29], [8.1, 33], [8.4, 32], [8.7, 34], [9.0, 36], [9.3, 33], [9.6, 37], [9.9, 37], [10.2, 38], [10.5, 41], [10.8, 40], [11.1, 40], [11.4, 38], [11.7, 40], [12.0, 32], [12.3, 34], [12.6, 36], [12.9, 38], [13.2, 38], [13.5, 34], [13.8, 39], [14.1, 36], [14.4, 39], [14.7, 39], [15.0, 40], [15.3, 39], [15.6, 41], [15.9, 42], [16.2, 43], [16.5, 42], [16.8, 43], [17.1, 44], [17.4, 44], [17.7, 46], [18.0, 48], [18.3, 49], [18.6, 51], [18.9, 52], [19.2, 54], [19.5, 55], [19.8, 55], [20.1, 57], [20.4, 58], [20.7, 60], [21.0, 61], [21.3, 60], [21.6, 61], [21.9, 60], [22.2, 56], [22.5, 59], [22.8, 63], [23.1, 64], [23.4, 54], [23.7, 61], [24.0, 67], [24.3, 66], [24.6, 64], [24.9, 69], [25.2, 69], [25.5, 61], [25.8, 63], [26.1, 67], [26.4, 71], [26.7, 72], [27.0, 74], [27.3, 73], [27.6, 74], [27.9, 78], [28.2, 79], [28.5, 82], [28.8, 84], [29.1, 86], [29.4, 87], [29.7, 88], [30.0, 91], [30.3, 91], [30.6, 91], [30.9, 94], [31.2, 95], [31.5, 95], [31.8, 97], [32.1, 98], [32.4, 101], [32.7, 100], [33.0, 102], [33.3, 104], [33.6, 105], [33.9, 108], [34.2, 111], [34.5, 109], [34.8, 109], [35.1, 109], [35.4, 110], [35.7, 109], [36.0, 110], [36.3, 112], [36.6, 115], [36.9, 115], [37.2, 114], [37.5, 117], [37.8, 120], [38.1, 120], [38.4, 119], [38.7, 120], [39.0, 124], [39.3, 126], [39.6, 127], [39.9, 129], [40.2, 128], [40.5, 130], [40.8, 132], [41.1, 133], [41.4, 134], [41.7, 136], [42.0, 137], [42.3, 138], [42.6, 140], [42.9, 144], [43.2, 147], [43.5, 148], [43.8, 150], [44.1, 150], [44.4, 149], [44.7, 150], [45.0, 152], [45.3, 155], [45.6, 156], [45.9, 158], [46.2, 161], [46.5, 161], [46.8, 164], [47.1, 164], [47.4, 165], [47.7, 167], [48.0, 169], [48.3, 170], [48.6, 173], [48.9, 176], [49.2, 179], [49.5, 175], [49.8, 174], [50.1, 178], [50.4, 182], [50.7, 183], [51.0, 187], [51.3, 192], [51.6, 195], [51.9, 197], [52.2, 196], [52.5, 197], [52.8, 199], [53.1, 202], [53.4, 215], [53.7, 221], [54.0, 223], [54.3, 228], [54.6, 233], [54.9, 241], [55.2, 247], [55.5, 255], [55.8, 259], [56.1, 266], [56.4, 269], [56.7, 268], [57.0, 277], [57.3, 288], [57.6, 293], [57.9, 293], [58.2, 295], [58.5, 289], [58.8, 303], [59.1, 318], [59.4, 322], [59.7, 322], [60.0, 328], [60.3, 336], [60.6, 344], [60.9, 349], [61.2, 356], [61.5, 363], [61.8, 370], [62.1, 376], [62.4, 382], [62.7, 391], [63.0, 402], [63.3, 415], [63.6, 424], [63.9, 437], [64.2, 447], [64.5, 457], [64.8, 472], [65.1, 483], [65.4, 491], [65.7, 491], [66.0, 481], [66.3, 479], [66.6, 471], [66.9, 478], [67.2, 478], [67.5, 471], [67.8, 462], [68.1, 475], [68.4, 509], [68.7, 535], [69.0, 551], [69.3, 567], [69.6, 585], [69.9, 591], [70.2, 594], [70.5, 596], [70.8, 594], [71.1, 597], [71.4, 604], [71.7, 620], [72.0, 627], [72.3, 636], [72.6, 646], [72.9, 664], [73.2, 688], [73.5, 701], [73.8, 718], [74.1, 739], [74.4, 755], [74.7, 764], [75.0, 775], [75.3, 791], [75.6, 800], [75.9, 808], [76.2, 819], [76.5, 826], [76.8, 838], [77.1, 856], [77.4, 883], [77.7, 897], [78.0, 906], [78.3, 906], [78.6, 906], [78.9, 898], [79.2, 906], [79.5, 915], [79.8, 920], [80.1, 939], [80.4, 957], [80.7, 990], [81.0, 1016], [81.3, 1029], [81.6, 1037], [81.9, 1047], [82.2, 1063], [82.5, 1080], [82.8, 1103], [83.1, 1127], [83.4, 1143], [83.7, 1164], [84.0, 1184], [84.3, 1200], [84.6, 1220], [84.9, 1238], [85.2, 1252], [85.5, 1276], [85.8, 1293], [86.1, 1314], [86.4, 1333], [86.7, 1351], [87.0, 1367], [87.3, 1388], [87.6, 1405], [87.9, 1424], [88.2, 1439], [88.5, 1463], [88.8, 1474], [89.1, 1463], [89.4, 1435], [89.7, 1415], [90.0, 1390], [90.3, 1375], [90.6, 1354], [90.9, 1335], [91.2, 1300], [91.5, 1271], [91.8, 1236], [92.1, 1210], [92.4, 1180], [92.7, 1152], [93.0, 1125], [93.3, 1121], [93.6, 1116], [93.9, 1099], [94.2, 1092], [94.5, 1090], [94.8, 1083], [95.1, 1072], [95.4, 1074], [95.7, 1054], [96.0, 1057], [96.3, 1053], [96.6, 1055], [96.9, 1054], [97.2, 1059], [97.5, 1070], [97.8, 1085], [98.1, 1099], [98.4, 1106], [98.7, 1102], [99.0, 1090], [99.3, 1104], [99.6, 1123], [99.9, 1134], [100.2, 1139], [100.5, 1133], [100.8, 1109], [101.1, 1089], [101.4, 1070], [101.7, 1046], [102.0, 1022], [102.3, 999], [102.6, 979], [102.9, 961], [103.2, 944], [103.5, 941], [103.8, 936], [104.1, 932], [104.4, 917], [104.7, 896], [105.0, 871], [105.3, 842], [105.6, 820], [105.9, 800], [106.2, 796], [106.5, 806], [106.8, 796], [107.1, 775], [107.4, 760], [107.7, 738], [108.0, 722], [108.3, 701], [108.6, 686], [108.9, 671], [109.2, 654], [109.5, 633], [109.8, 618], [110.1, 603], [110.4, 594], [110.7, 582], [111.0, 573], [111.3, 562], [111.6, 551], [111.9, 540], [112.2, 531], [112.5, 520], [112.8, 508], [113.1, 499], [113.4, 490], [113.7, 482], [114.0, 471], [114.3, 463], [114.6, 457], [114.9, 450], [115.2, 440], [115.5, 432], [115.8, 425], [116.1, 414], [116.4, 405], [116.7, 395], [117.0, 387], [117.3, 380], [117.6, 374], [117.9, 364], [118.2, 358], [118.5, 352], [118.8, 344], [119.1, 339], [119.4, 336], [119.7, 331], [120.0, 327], [120.3, 322], [120.6, 317], [120.9, 310], [121.2, 308], [121.5, 307], [121.8, 304], [122.1, 299], [122.4, 298], [122.7, 296], [123.0, 294], [123.3, 290], [123.6, 287], [123.9, 281], [124.2, 277], [124.5, 277], [124.8, 274], [125.1, 271], [125.4, 269], [125.7, 269], [126.0, 267], [126.3, 266], [126.6, 255], [126.9, 253], [127.2, 261], [127.5, 263], [127.8, 263], [128.1, 263], [128.4, 265], [128.7, 267], [129.0, 268], [129.3, 269], [129.6, 270], [129.9, 271], [130.2, 272], [130.5, 273], [130.8, 274], [131.1, 273], [131.4, 272], [131.7, 271], [132.0, 268], [132.3, 272], [132.6, 276], [132.9, 272], [133.2, 271], [133.5, 274], [133.8, 276], [134.1, 277], [134.4, 286], [134.7, 293], [135.0, 296], [135.3, 296], [135.6, 291], [135.9, 287], [136.2, 285], [136.5, 287], [136.8, 279], [137.1, 281], [137.4, 288], [137.7, 291], [138.0, 288], [138.3, 293], [138.6, 306], [138.9, 316], [139.2, 322], [139.5, 329], [139.8, 336], [140.1, 342], [140.4, 344], [140.7, 349], [141.0, 358], [141.3, 358], [141.6, 359], [141.9, 365], [142.2, 372], [142.5, 379], [142.8, 382], [143.1, 387], [143.4, 389], [143.7, 393], [144.0, 407], [144.3, 417], [144.6, 426], [144.9, 431], [145.2, 431], [145.5, 435], [145.8, 446], [146.1, 449], [146.4, 449], [146.7, 448], [147.0, 459], [147.3, 469], [147.6, 479], [147.9, 484], [148.2, 491], [148.5, 511], [148.8, 523], [149.1, 541], [149.4, 558], [149.7, 570], [150.0, 582], [150.3, 592], [150.6, 598], [150.9, 607], [151.2, 620], [151.5, 635], [151.8, 651], [152.1, 663], [152.4, 680], [152.7, 698], [153.0, 711], [153.3, 726], [153.6, 743], [153.9, 748], [154.2, 740], [154.5, 730], [154.8, 726], [155.1, 720], [155.4, 714], [155.7, 709], [156.0, 705], [156.3, 700], [156.6, 694], [156.9, 691], [157.2, 688], [157.5, 690], [157.8, 687], [158.1, 680], [158.4, 677], [158.7, 676], [159.0, 675], [159.3, 673], [159.6, 670], [159.9, 673], [160.2, 676], [160.5, 682], [160.8, 684], [161.1, 690], [161.4, 696], [161.7, 699], [162.0, 709], [162.3, 718], [162.6, 725], [162.9, 732], [163.2, 737], [163.5, 735], [163.8, 745], [164.1, 750], [164.4, 754], [164.7, 758], [165.0, 759], [165.3, 762], [165.6, 765], [165.9, 766], [166.2, 763], [166.5, 765], [166.8, 764], [167.1, 760], [167.4, 758], [167.7, 752], [168.0, 747], [168.3, 744], [168.6, 741], [168.9, 738], [169.2, 735], [169.5, 737], [169.8, 735], [170.1, 732], [170.4, 727], [170.7, 725], [171.0, 726], [171.3, 725], [171.6, 725], [171.9, 727], [172.2, 731], [172.5, 734], [172.8, 734], [173.1, 732], [173.4, 732], [173.7, 728], [174.0, 728], [174.3, 726], [174.6, 731], [174.9, 731], [175.2, 726], [175.5, 727], [175.8, 725], [176.1, 729], [176.4, 737], [176.7, 742], [177.0, 746], [177.3, 747], [177.6, 756], [177.9, 764], [178.2, 771], [178.5, 774]], "max": [88.7, 1475], "min": [1.7, 9] }, W = D.wp, P = D.prof;
+        const S0 = 21 * 3600 + 12 * 60 + 6, NIGHT = [[0, 30780], [74280, 1e9]];
+        const WX = { T: [29.3, 28.7, 28, 25.8, 24, 23, 25.6, 26.2, 24.9, 26.8, 32, 33.8, 29.7, 26.6, 23.5, 19.8, 21.2], AT: [33.1, 33.5, 32.9, 29.2, 27.8, 25.5, 28.5, 29.3, 27.8, 28.9, 33.2, 34.8, 33.6, 30.2, 27, 20.8, 21.7], RH: [61, 68, 70, 71, 84, 81, 67, 65, 48, 39, 27, 36, 61, 68, 79, 77, 66], rad: [0, 0, 0, 0, 0, 11, 167, 664, 939, 1052, 898, 412, 29, 0, 0, 0, 0], cl: [52, 2, 2, 0, 2, 2, 0, 24, 98, 98, 86, 58, 75, 24, 84, 77, 39] };
+        const hms = s => { s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h + ":" + String(m).padStart(2, "0") + ":" + String(x).padStart(2, "0") };
+        const ms = s => Math.floor(s / 60) + ":" + String(Math.round(s % 60)).padStart(2, "0");
+        const clk = s => { const T = (S0 + s) % 86400; return String(Math.floor(T / 3600)).padStart(2, "0") + ":" + String(Math.floor(T % 3600 / 60)).padStart(2, "0") };
+        const lab = i => i == 0 ? "Start" : i == W.length - 1 ? "Finish" : W[i].n;
+        const L = []; for (let i = 1; i < W.length; i++) { const a = W[i - 1], b = W[i], d = b.km - a.km, t = b.t - a.t; L.push({ i, from: lab(i - 1), to: lab(i), d, t, pace: t / d, spd: d / (t / 3600), up: b.cg - a.cg, dn: b.cl - a.cl, g: (b.ele - a.ele) / (d * 10), upk: (b.cg - a.cg) / d, mid: (a.t + b.t) / 2, x0: a.km, x1: b.km }) }
+        L.forEach(l => { const m = k => (WX[k][l.i - 1] + WX[k][l.i]) / 2; l.T = m("T"); l.AT = m("AT"); l.RH = m("RH"); l.rad = m("rad") });
+        const LG = [{ "fac": 1.02, "steep": 0.0, "maxg": 0.9, "down": 0.0 }, { "fac": 1.02, "steep": 0.0, "maxg": 0.8, "down": 0.0 }, { "fac": 1.033, "steep": 0.0, "maxg": 1.2, "down": 0.0 }, { "fac": 1.024, "steep": 0.0, "maxg": 0.9, "down": 0.0 }, { "fac": 1.053, "steep": 0.0, "maxg": 2.3, "down": 0.0 }, { "fac": 1.141, "steep": 0.0, "maxg": 3.9, "down": 0.0 }, { "fac": 1.199, "steep": 7.1, "maxg": 8.4, "down": 0.0 }, { "fac": 1.332, "steep": 15.5, "maxg": 8.4, "down": 0.0 }, { "fac": 0.985, "steep": 1.8, "maxg": 6.5, "down": 22.1 }, { "fac": 0.925, "steep": 1.9, "maxg": 4.5, "down": 13.0 }, { "fac": 0.93, "steep": 0.0, "maxg": -1.3, "down": 0.0 }, { "fac": 1.001, "steep": 0.0, "maxg": 1.3, "down": 0.0 }, { "fac": 1.078, "steep": 0.0, "maxg": 3.2, "down": 0.0 }, { "fac": 1.169, "steep": 1.8, "maxg": 5.5, "down": 0.0 }, { "fac": 1.042, "steep": 0.0, "maxg": 2.9, "down": 0.0 }, { "fac": 1.02, "steep": 0.0, "maxg": 2.5, "down": 0.0 }];
+        LG.forEach((g, k) => Object.assign(L[k], g));
+        L.forEach(l => { l.gap = l.t / (l.d * l.fac); l.rn = W[l.i].name; l.sn = l.rn.replace(/^(Muhammad|M\.)\s+/, "").split(" ")[0]; l.hr = ((S0 + l.mid) % 86400) / 3600 });
+        const gs = L.map(l => l.gap).sort((a, b) => a - b), MG = (gs[7] + gs[8]) / 2;
+        L.forEach(l => { l.rel = l.gap / MG; const hill = l.fac >= 1.07, dn = l.fac < .95; if (l.rel <= .93) { l.tag = hill ? "Kuat di tanjakan" : dn ? "Kuat di turunan" : "Cepat di medan datar"; l.tc = "#2f9e44" } else if (l.rel >= 1.1) { l.tag = hill ? "Perlu latihan tanjakan" : dn ? "Perlu latihan turunan & daya tahan" : "Perlu latihan dasar"; l.tc = hill ? "#e8590c" : "#e03131" } else { l.tag = "Solid"; l.tc = "#1c7ed6" } });
+        const night = t => NIGHT.some(r => t >= r[0] && t < r[1]);
+        const kmAt = t => { for (let i = 1; i < W.length; i++)if (t <= W[i].t) return W[i - 1].km + (t - W[i - 1].t) / (W[i].t - W[i - 1].t) * (W[i].km - W[i - 1].km); return W.at(-1).km };
+        const tot = W.at(-1), css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+        const pmin = Math.min(...L.map(l => l.pace)), pmax = Math.max(...L.map(l => l.pace));
+        const col = (l, a = 1) => `hsla(${200 - 190 * (l.pace - pmin) / (pmax - pmin)},75%,52%,${a})`;
+        let sel = null, met = "pace", ch = {};
+        const M = { pace: { n: "Pace", f: l => l.pace / 60, u: "min/km", fmt: l => ms(l.pace) }, spd: { n: "Kecepatan", f: l => l.spd, u: "km/jam", fmt: l => l.spd.toFixed(1) }, up: { n: "Naik", f: l => l.up, u: "m", fmt: l => Math.round(l.up) + " m" }, dn: { n: "Turun", f: l => l.dn, u: "m", fmt: l => Math.round(l.dn) + " m" }, t: { n: "Waktu leg", f: l => l.t / 3600, u: "jam", fmt: l => hms(l.t) } };
+        // KPI
+        const sl = L.slice(0, 7), sh = L.slice(8), pf = x => x.reduce((s, l) => s + l.t, 0) / x.reduce((s, l) => s + l.d, 0);
+        const nl = L.filter(l => night(l.mid)), dl = L.filter(l => !night(l.mid));
+        const best = L.reduce((a, b) => a.pace < b.pace ? a : b), worst = L.reduce((a, b) => a.pace > b.pace ? a : b);
+        const $k = [[hms(tot.t), "Total waktu"], [clk(tot.t) + " WIB", "Finish (H+2)"], [ms(tot.t / tot.km) + " /km", "Pace rata-rata"], [(tot.km / (tot.t / 3600)).toFixed(1) + " km/j", "Kecepatan rata-rata"], ["+" + Math.round(tot.cg) + " m", "Total naik"], ["−" + Math.round(tot.cl) + " m", "Total turun"], [D.max[1] + " m", "Puncak (km " + D.max[0] + ")"], [Math.max(...WX.T) + "°C", "Suhu tertinggi"], [Math.min(...WX.T) + "°C", "Suhu terendah"]];
+        document.getElementById("kpis").innerHTML = $k.map(k => `<div class="k"><b>${k[0]}</b><span>${k[1]}</span></div>`).join("");
+        const I = [["Leg tercepat", `${best.from}→${best.to}, pelari ${W[best.i].name}: ${ms(best.pace)}/km di ${best.d.toFixed(1)} km`], ["Leg terlambat", `${worst.from}→${worst.to}, pelari ${W[worst.i].name}: ${ms(worst.pace)}/km, naik ${Math.round(worst.up)} m`], ["Paruh awal vs akhir", `Leg 1–7 pace ${ms(pf(sl))}/km vs leg 9–16 ${ms(pf(sh))}/km (${((pf(sh) / pf(sl) - 1) * 100).toFixed(0)}%)`], ["Malam vs siang", `Leg malam ${ms(pf(nl))}/km vs siang ${ms(pf(dl))}/km (berdasar titik tengah leg)`], ["Elevasi", `Start ${W[0].ele} m → finish ${tot.ele} m, puncak ${D.max[1]} m di km ${D.max[0]}`]];
+        (() => { const x = L.map(l => l.upk), y = L.map(l => l.pace), n = x.length, mx = x.reduce((a, b) => a + b) / n, my = y.reduce((a, b) => a + b) / n; const r = x.reduce((s, v, i) => s + (v - mx) * (y[i] - my), 0) / Math.sqrt(x.reduce((s, v) => s + (v - mx) ** 2, 0) * y.reduce((s, v) => s + (v - my) ** 2, 0)); I.push(["Korelasi tanjakan–pace", `r = ${r.toFixed(2)} antar leg: ${Math.abs(r) < .3 ? "tanjakan bukan faktor utama; kemungkinan istirahat di WS, kelelahan, dan malam hari ikut berperan" : r > 0 ? "leg dengan lebih banyak tanjakan cenderung lebih lambat" : "hubungan terbalik, perlu dicek"}`]) })();
+        (() => {
+            const avg = a => a.reduce((s, l) => s + l.pace, 0) / a.length, cr = (x, y) => { const n = x.length, mx = x.reduce((a, b) => a + b) / n, my = y.reduce((a, b) => a + b) / n; return x.reduce((s, v, i) => s + (v - mx) * (y[i] - my), 0) / Math.sqrt(x.reduce((s, v) => s + (v - mx) ** 2, 0) * y.reduce((s, v) => s + (v - my) ** 2, 0)) };
+            const n = L.length, up = L.map(l => l.upk), pc = L.map(l => l.pace / 60), mu = up.reduce((a, b) => a + b) / n, mp = pc.reduce((a, b) => a + b) / n, bt = up.reduce((s, v, i) => s + (v - mu) * (pc[i] - mp), 0) / up.reduce((s, v) => s + (v - mu) ** 2, 0), res = pc.map((p, i) => p - (mp + bt * (up[i] - mu)));
+            const hot = L.filter(l => l.AT >= 30), cool = L.filter(l => l.AT < 30), r1 = cr(L.map(l => l.AT), pc), r2 = cr(L.map(l => l.AT), res), top = [...L].sort((a, b) => b.pace - a.pace).slice(0, 3), mT = WX.T.indexOf(Math.max(...WX.T)), mR = WX.rad.indexOf(Math.max(...WX.rad));
+            const hotL = L.reduce((a, b) => a.AT > b.AT ? a : b), sunL = L.reduce((a, b) => a.rad > b.rad ? a : b);
+            const win = L.filter(l => W[l.i - 1].t < 64074 && W[l.i].t > 46074), out = L.filter(l => !win.includes(l));
+            I.push(["Leg terpanas / terik", `Terpanas (suhu terasa rata-rata ${hotL.AT.toFixed(0)}°C): ${hotL.from}→${hotL.to}, pelari ${hotL.rn}, ${clk(W[hotL.i - 1].t)}–${clk(W[hotL.i].t)} WIB, pace ${ms(hotL.pace)}/km. Radiasi terkuat (${Math.round(sunL.rad)} W/m²): ${sunL.from}→${sunL.to}, pelari ${sunL.rn}, ${clk(W[sunL.i - 1].t)}–${clk(W[sunL.i].t)} WIB, pace ${ms(sunL.pace)}/km`], ["Suhu & radiasi puncak", `Suhu tertinggi ${WX.T[mT]}°C (terasa ${WX.AT[mT]}°C) di ${lab(mT)} pukul ${clk(W[mT].t)}; radiasi puncak ${WX.rad[mR]} W/m² di ${lab(mR)} pukul ${clk(W[mR].t)}, tetapi awan ${WX.cl[mR]}% sehingga suhu belum setinggi sore hari`], ["Jendela terik 10:00–15:00 WIB", `Leg ${win.map(l => l.i).join(", ")} (${win[0].from}→${win.at(-1).to}; pelari: ${win.map(l => l.rn).join(", ")}) pace ${ms(avg(win))}/km vs ${ms(avg(out))}/km di luar jendela: ${avg(win) < avg(out) ? "tidak lebih lambat, tetapi leg 9 dan 11 relatif landai" : "lebih lambat"}`], ["Leg terik vs sejuk (terasa ≥30°C)", `${hot.length} leg: pace ${ms(avg(hot))}/km vs ${ms(avg(cool))}/km pada ${cool.length} leg lebih sejuk. Sebagian leg “terik” terjadi malam hari di awal karena kelembapan tinggi`], ["Korelasi cuaca–pace", `Suhu terasa vs pace r = ${r1.toFixed(2)}; setelah efek tanjakan dikeluarkan r = ${r2.toFixed(2)}. ${r2 < -.2 ? "Tidak tampak perlambatan akibat panas; leg hangat justru lebih cepat, kemungkinan karena terjadi saat pelari masih segar" : r2 > .2 ? "Leg yang lebih panas cenderung lebih lambat" : "Hubungan lemah"}`], ["3 leg paling lambat", top.map(l => `${l.from}→${l.to} · ${l.rn} (${clk(W[l.i - 1].t)}–${clk(W[l.i].t)}, ${ms(l.pace)}/km, terasa ${l.AT.toFixed(0)}°C)`).join("; ") + ` → ${top.filter(l => l.AT < 30).length} dari 3 terjadi saat suhu terasa di bawah 30°C`])
+        })();
+        document.getElementById("ins").innerHTML = I.map(i => `<div><b>${i[0]}</b>${i[1]}</div>`).join("");
+        // table
+        document.getElementById("tb").innerHTML = L.map((l, j) => `<tr data-i="${j}"><td>${l.i}</td><td>${l.from} → ${l.to}</td><td>${l.d.toFixed(1)} km</td><td>${hms(l.t)}</td><td>${ms(l.pace)}</td><td>+${Math.round(l.up)}</td><td>−${Math.round(l.dn)}</td><td>${W[l.i].ele} m</td><td>${hms(W[l.i].t)}</td><td>${WX.T[l.i]}° / ${WX.AT[l.i]}°</td><td>${WX.RH[l.i]}%</td><td>${WX.rad[l.i]} W/m²</td><td>${clk(W[l.i].t)} · ${W[l.i].name}</td></tr>`).join("");
+        document.querySelectorAll("#tb tr").forEach(r => r.onclick = () => pick(+r.dataset.i));
+        document.getElementById("tabs").innerHTML = Object.keys(M).map(k => `<button data-k="${k}">${M[k].n}</button>`).join("");
+        document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => { met = b.dataset.k; build() });
+        function pick(j) { sel = sel === j ? null : j; build() }
+        // map
+        function drawMap() {
+            const la = W.map(w => w.lat), lo = W.map(w => w.lon), c = Math.cos(6.5 * Math.PI / 180), S = 560 / ((Math.max(...lo) - Math.min(...lo)) * c), H = (Math.max(...la) - Math.min(...la)) * S + 60;
+            const X = w => 30 + (w.lon - Math.min(...lo)) * c * S, Y = w => 30 + (Math.max(...la) - w.lat) * S;
+            let s = `<svg viewBox="0 0 620 ${H}" width="100%">`;
+            L.forEach((l, j) => { const a = W[l.i - 1], b = W[l.i]; s += `<line data-i="${j}" x1="${X(a)}" y1="${Y(a)}" x2="${X(b)}" y2="${Y(b)}" stroke="${col(l)}" stroke-width="${sel === j ? 9 : 4}" stroke-linecap="round" opacity="${sel === null || sel === j ? 1 : .35}" style="cursor:pointer"><title>${l.from}→${l.to}: ${ms(l.pace)}/km</title></line>` });
+            W.forEach((w, i) => { s += `<circle cx="${X(w)}" cy="${Y(w)}" r="${i % W.length == 0 || i == W.length - 1 ? 6 : 3.5}" fill="${i == 0 ? "#2f9e44" : i == W.length - 1 ? "#e03131" : css("--card")}" stroke="${css("--tx")}" stroke-width="1.5"/>`; if (i % 2 == 0 || i == W.length - 1) s += `<text x="${X(w) + 8}" y="${Y(w) + 4}">${lab(i)}</text>` });
+            document.getElementById("map").innerHTML = s + "</svg>"; document.querySelectorAll("#map line").forEach(e => e.onclick = () => pick(+e.dataset.i))
+        }
+        const plug = {
+            id: "ov", beforeDatasetsDraw(c) { const { ctx, chartArea: a, scales: { x } } = c; ctx.save(); ctx.fillStyle = css("--night"); NIGHT.forEach(r => { const p = Math.max(a.left, x.getPixelForValue(kmAt(r[0]))), q = Math.min(a.right, x.getPixelForValue(kmAt(Math.min(r[1], tot.t)))); if (q > p) ctx.fillRect(p, a.top, q - p, a.bottom - a.top) }); if (sel !== null) { ctx.fillStyle = css("--sel"); const p = x.getPixelForValue(L[sel].x0), q = x.getPixelForValue(L[sel].x1); ctx.fillRect(p, a.top, q - p, a.bottom - a.top) } ctx.restore() },
+            afterDatasetsDraw(c) { const { ctx, chartArea: a, scales: { x } } = c; ctx.save(); ctx.strokeStyle = css("--mu"); ctx.fillStyle = css("--mu"); ctx.font = "10px system-ui"; ctx.setLineDash([3, 4]); W.forEach((w, i) => { const px = x.getPixelForValue(w.km); ctx.beginPath(); ctx.moveTo(px, a.top + 14); ctx.lineTo(px, a.bottom); ctx.stroke(); ctx.fillText(i == 0 ? "S" : i == W.length - 1 ? "F" : i, px - (i > 9 ? 6 : 3), a.top + 10) }); ctx.restore() }
+        };
+        function build() {
+            Object.values(ch).forEach(c => c.destroy()); const tx = css("--mu"), gr = css("--bd"); Chart.defaults.color = tx; Chart.defaults.borderColor = gr;
+            document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.k == met));
+            document.querySelectorAll("#tb tr").forEach(r => r.classList.toggle("sel", +r.dataset.i === sel));
+            ch.e = new Chart("ce", { type: "line", data: { datasets: [{ data: P.map(p => ({ x: p[0], y: p[1] })), borderColor: css("--ac"), backgroundColor: css("--ac") + "33", fill: true, pointRadius: 0, borderWidth: 2, tension: .2 }] }, options: { maintainAspectRatio: false, animation: false, parsing: false, interaction: { mode: "nearest", axis: "x", intersect: false }, plugins: { legend: { display: false }, tooltip: { callbacks: { title: i => "Km " + i[0].parsed.x.toFixed(1), label: i => i.parsed.y + " m" } } }, scales: { x: { type: "linear", min: 0, max: tot.km, title: { display: true, text: "Jarak (km)" } }, y: { title: { display: true, text: "Elevasi (m)" } } } }, plugins: [plug] });
+            const m = M[met]; ch.l = new Chart("cl", { type: "bar", data: { labels: L.map(l => l.from + "→" + l.to), datasets: [{ data: L.map(m.f), backgroundColor: L.map((l, j) => sel === null || sel === j ? col(l) : col(l, .35)), borderRadius: 4 }] }, options: { maintainAspectRatio: false, animation: false, onClick: (e, a) => { if (a.length) pick(a[0].index) }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => m.n + ": " + m.fmt(L[i.dataIndex]) } } }, scales: { y: { title: { display: true, text: m.u }, beginAtZero: met != "pace" }, x: { ticks: { maxRotation: 60, font: { size: 10 } } } } } });
+            ch.s = new Chart("cs", { type: "scatter", data: { datasets: [{ data: L.map((l, j) => ({ x: l.upk, y: l.pace / 60, j })), backgroundColor: L.map((l, j) => sel === j ? css("--tx") : col(l)), pointRadius: L.map((l, j) => sel === j ? 9 : 6) }] }, options: { maintainAspectRatio: false, animation: false, onClick: (e, a) => { if (a.length) pick(a[0].index) }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => { const l = L[i.dataIndex]; return l.from + "→" + l.to + " · " + ms(l.pace) + "/km · +" + l.upk.toFixed(0) + " m/km" } } } }, scales: { x: { title: { display: true, text: "Naik per km (m)" } }, y: { title: { display: true, text: "Pace (min/km)" } } } } });
+            const xy = k => W.map((w, i) => ({ x: w.km, y: WX[k][i] }));
+            ch.w = new Chart("cw", { type: "line", data: { datasets: [{ label: "Suhu (°C)", data: xy("T"), borderColor: css("--ac"), backgroundColor: css("--ac"), yAxisID: "y", tension: .3, pointRadius: 4 }, { label: "Suhu terasa (°C)", data: xy("AT"), borderColor: "#e03131", backgroundColor: "#e03131", borderDash: [5, 4], yAxisID: "y", tension: .3, pointRadius: 3 }, { label: "Radiasi matahari (W/m²)", data: xy("rad"), borderColor: css("--ac2"), backgroundColor: css("--ac2") + "33", fill: true, yAxisID: "y2", tension: .3, pointRadius: 0 }] }, options: { maintainAspectRatio: false, animation: false, parsing: false, interaction: { mode: "nearest", axis: "x", intersect: false }, plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { title: i => lab(i[0].dataIndex) + " · km " + i[0].parsed.x + " · " + clk(W[i[0].dataIndex].t) + " WIB" } } }, scales: { x: { type: "linear", min: 0, max: tot.km, title: { display: true, text: "Jarak (km)" } }, y: { title: { display: true, text: "°C" } }, y2: { position: "right", min: 0, grid: { drawOnChartArea: false }, title: { display: true, text: "W/m²" } } } }, plugins: [plug] });
+            ch.p = new Chart("cp", { data: { labels: L.map(l => l.from + "→" + l.to), datasets: [{ type: "bar", label: "Pace (min/km)", data: L.map(l => l.pace / 60), backgroundColor: L.map((l, j) => sel === null || sel === j ? col(l) : col(l, .35)), borderRadius: 4, yAxisID: "y" }, { type: "line", label: "Suhu terasa (°C)", data: L.map(l => +l.AT.toFixed(1)), borderColor: "#e03131", backgroundColor: "#e03131", pointRadius: 4, tension: .25, yAxisID: "y2" }] }, options: { maintainAspectRatio: false, animation: false, onClick: (e, a) => { if (a.length) pick(a[0].index) }, plugins: { legend: { position: "bottom" } }, scales: { y: { beginAtZero: true, title: { display: true, text: "min/km" } }, y2: { position: "right", min: 15, grid: { drawOnChartArea: false }, title: { display: true, text: "°C" } }, x: { ticks: { maxRotation: 60, font: { size: 10 } } } } } });
+            runners(); drawMap()
+        }
+        function runners() {
+            const nz = (v, a) => (v - Math.min(...a)) / (Math.max(...a) - Math.min(...a));
+            const F = L.map(l => l.fac), U = L.map(l => l.upk), A = L.map(l => l.AT);
+            L.forEach((l, j) => { l.score = Math.round(100 * (.5 * nz(l.fac, F) + .3 * nz(l.upk, U) + .2 * nz(l.AT, A))) });
+            const byGap = [...L].sort((a, b) => a.gap - b.gap), byPace = [...L].sort((a, b) => a.pace - b.pace), byHard = [...L].sort((a, b) => b.score - a.score);
+            const rk = (arr, l) => arr.indexOf(l) + 1, ctx = l => { const a = []; if (l.hr >= 2 && l.hr < 6) a.push("dini hari (kantuk memuncak)"); else if (l.rad < 50) a.push("malam hari"); if (l.AT >= 31 && l.rad > 300) a.push("terik"); return a };
+            const nm = l => `${l.rn} (leg ${l.i})`;
+            const best = byGap[0], fast = byPace[0], list = (a, f) => a.length ? a.map(f).join("; ") : "tidak ada";
+            const kuat = L.filter(l => l.tag.startsWith("Kuat")), hill = L.filter(l => l.tag == "Perlu latihan tanjakan"), dasar = L.filter(l => l.tag == "Perlu latihan dasar" || l.tag.includes("turunan"));
+            const R = [["Terbaik (disesuaikan medan)", `${nm(best)}: GAP ${ms(best.gap)}/km, ${((1 - best.rel) * 100).toFixed(0)}% lebih cepat dari median (${ms(MG)}/km). Pace aktual ${ms(best.pace)}/km di leg ${best.d.toFixed(1)} km yang ${best.fac < 1.05 ? "hampir datar" : "menanjak"}`],
+            ["Tercepat secara aktual", fast === best ? "Sama dengan yang terbaik setelah penyesuaian medan" : `${nm(fast)} ${ms(fast.pace)}/km, peringkat ${rk(byGap, fast)} setelah penyesuaian`],
+            ["Kuat di tanjakan / medan", list(kuat, l => `${nm(l)} ${l.tag.toLowerCase()}, GAP ${ms(l.gap)}`)],
+            ["Perlu latihan tanjakan", list(hill, l => `${nm(l)}: ${Math.round(l.up)} m naik, GAP ${ms(l.gap)}/km (+${((l.rel - 1) * 100).toFixed(0)}% dari median)`)],
+            ["Perlu latihan dasar / daya tahan", list(dasar, l => `${nm(l)}: GAP ${ms(l.gap)}/km (+${((l.rel - 1) * 100).toFixed(0)}%)${ctx(l).length ? ", saat " + ctx(l).join(", ") : ""}`)]];
+            document.getElementById("rins").innerHTML = R.map(i => `<div><b>${i[0]}</b>${i[1]}</div>`).join("");
+            ch.r = new Chart("cr", { type: "bar", data: { labels: byGap.map(l => l.sn + " · L" + l.i), datasets: [{ label: "Pace aktual", data: byGap.map(l => +(l.pace / 60).toFixed(2)), backgroundColor: css("--mu") + "66", borderRadius: 4 }, { label: "Pace setara datar (GAP)", data: byGap.map(l => +(l.gap / 60).toFixed(2)), backgroundColor: byGap.map(l => l.tc), borderRadius: 4 }] }, options: { maintainAspectRatio: false, animation: false, onClick: (e, a) => { if (a.length) { sel = byGap[a[0].index].i - 1; build() } }, plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { afterLabel: i => byGap[i.dataIndex].rn + " · " + byGap[i.dataIndex].tag } } }, scales: { y: { beginAtZero: true, title: { display: true, text: "min/km" } }, x: { ticks: { maxRotation: 60, font: { size: 10 } } } } } });
+            const cur = sel === null ? best.i - 1 : sel, l = L[cur], c = ctx(l), S = [], Wk = [];
+            document.getElementById("rtabs").innerHTML = L.map((x, j) => `<button data-j="${j}" class="${j === cur ? "on" : ""}">L${x.i} ${x.sn}</button>`).join("");
+            document.querySelectorAll("#rtabs button").forEach(b => b.onclick = () => { sel = +b.dataset.j; build() });
+            if (l.rel <= .93) S.push(`Pace setara datar ${ms(l.gap)}/km, ${((1 - l.rel) * 100).toFixed(0)}% lebih cepat dari median (${ms(MG)})`);
+            if (l.fac >= 1.07 && l.rel <= 1) S.push(`Menjaga pace di leg dengan ${Math.round(l.up)} m naik${l.steep > 0 ? ` dan ${l.steep}% jalur ≥8%` : ""}`);
+            if (rk(byPace, l) <= 3) S.push(`Termasuk 3 pace aktual tercepat (#${rk(byPace, l)})`);
+            if (c.some(x => x.startsWith("malam") || x.startsWith("dini")) && l.rel <= 1) S.push("Tetap kuat saat berlari malam/dini hari");
+            if (c.includes("terik") && l.rel <= 1) S.push("Tidak melambat meski berlari saat terik");
+            if (!S.length) S.push("Konsisten di sekitar median kelompok");
+            if (l.rel >= 1.1) Wk.push(`Pace setara datar ${ms(l.gap)}/km, ${((l.rel - 1) * 100).toFixed(0)}% lebih lambat dari median`);
+            if (l.fac >= 1.07 && l.rel > 1.03) Wk.push(`Kehilangan waktu di leg menanjak (${Math.round(l.up)} m naik)`);
+            if (l.fac < .95 && l.rel > 1.1) Wk.push("Leg dominan turun, tetapi pace tidak memanfaatkan turunan: cek teknik turunan dan kekuatan kuadrisep");
+            if (c.some(x => x.startsWith("dini")) && l.rel > 1.03) Wk.push("Berlari di dini hari saat kantuk memuncak; faktor non-fisik mungkin ikut berperan");
+            if (c.includes("terik") && l.rel > 1.03) Wk.push("Berlari saat terik, kemungkinan ikut menekan pace");
+            if (!Wk.length) Wk.push("Tidak ada kelemahan menonjol di leg ini");
+            const adv = { "Kuat di tanjakan": "Andalan untuk leg menanjak; pertahankan kekuatan kaki dan coba di medan lebih panjang.", "Kuat di turunan": "Pertahankan teknik turunan; uji juga di leg menanjak.", "Cepat di medan datar": "Kecepatan dasar bagus; uji kemampuan di leg menanjak untuk melihat sisi lainnya.", "Solid": "Pace stabil; tambahkan sesi tempo/interval untuk naik level.", "Perlu latihan tanjakan": "Tambahkan hill repeats (6–8 × 2–3 menit di tanjakan 6–8%), power hiking, dan latihan kekuatan kaki.", "Perlu latihan turunan & daya tahan": "Latih turunan terkontrol dan kekuatan eksentrik kuadrisep, plus daya tahan di cuaca hangat.", "Perlu latihan dasar": "Medan relatif datar, jadi masalahnya bukan tanjakan: tambah volume aerobik (long run, tempo) dan latih strategi pacing." };
+            document.getElementById("rcard").innerHTML = `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><h3 style="margin:0">${l.rn}</h3><span class="tag" style="background:${l.tc}">${l.tag}</span></div><div class="hint">Leg ${l.i} · ${l.from}→${l.to} · ${clk(W[l.i - 1].t)}–${clk(W[l.i].t)} WIB · ${l.d.toFixed(1)} km</div><div class="st"><div><b>${ms(l.pace)}</b><span>Pace aktual</span></div><div><b>${ms(l.gap)}</b><span>Pace setara datar</span></div><div><b>#${rk(byPace, l)} → #${rk(byGap, l)}</b><span>Peringkat aktual → disesuaikan</span></div><div><b>+${Math.round(l.up)} / −${Math.round(l.dn)} m</b><span>Naik / turun</span></div><div><b>${l.score}/100</b><span>Skor medan (#${rk(byHard, l)} terberat)</span></div><div><b>${l.AT.toFixed(0)}°C</b><span>Suhu terasa${c.length ? " · " + c.join(", ") : ""}</span></div></div><b>Keunggulan</b><ul class="l">${S.map(x => "<li>" + x + "</li>").join("")}</ul><b>Perlu diperhatikan</b><ul class="l">${Wk.map(x => "<li>" + x + "</li>").join("")}</ul><b>Saran</b><p style="margin:4px 0 0">${adv[l.tag]}${c.some(x => x.startsWith("dini")) ? " Latih juga manajemen kantuk dan nutrisi untuk lari dini hari." : ""}</p>`;
+            const pr = P.filter(p => p[0] >= l.x0 - .3 && p[0] <= l.x1 + .3);
+            ch.m = new Chart("cm", { type: "line", data: { datasets: [{ data: pr.map(p => ({ x: p[0], y: p[1] })), borderColor: l.tc, backgroundColor: l.tc + "33", fill: true, pointRadius: 0, borderWidth: 2, tension: .2 }] }, options: { maintainAspectRatio: false, animation: false, parsing: false, plugins: { legend: { display: false }, title: { display: true, text: `Profil elevasi leg ${l.i}: ${l.from}→${l.to}` } }, scales: { x: { type: "linear", min: l.x0, max: l.x1, title: { display: true, text: "Jarak (km)" } }, y: { title: { display: true, text: "Elevasi (m)" } } } } });
+            ch.d = new Chart("cd", { type: "bar", data: { labels: L.map(x => "L" + x.i + " " + x.from + "→" + x.to), datasets: [{ data: L.map(x => x.score), backgroundColor: L.map((x, j) => `hsla(${120 - 120 * x.score / 100},70%,48%,${sel === null || sel === j ? 1 : .35})`), borderRadius: 4 }] }, options: { maintainAspectRatio: false, animation: false, onClick: (e, a) => { if (a.length) { sel = a[0].index; build() } }, plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: i => { const x = L[i.dataIndex]; return `Naik ${Math.round(x.up)} m (${x.upk.toFixed(0)} m/km) · faktor medan ${x.fac.toFixed(2)} · terasa ${x.AT.toFixed(0)}°C` } } } }, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: "Skor kesulitan" } }, x: { ticks: { maxRotation: 60, font: { size: 10 } } } } } });
+            const dl = x => `L${x.i} ${x.from}→${x.to} (skor ${x.score}): naik ${Math.round(x.up)} m, turun ${Math.round(x.dn)} m, ${x.steep}% jalur ≥8%, terasa ${x.AT.toFixed(0)}°C`;
+            const sl = [...L].sort((a, b) => b.pace - a.pace).slice(0, 3), nh = sl.filter(x => byHard.indexOf(x) >= 5).length;
+            document.getElementById("dtxt").innerHTML = [["Terberat", byHard.slice(0, 3).map(dl).join("<br>")], ["Termudah", byHard.slice(-3).reverse().map(dl).join("<br>")], ["Medan vs hasil", `${nh} dari 3 leg paling lambat (L${sl.map(x => x.i).join(", L")}) bukan 5 leg terberat secara medan, jadi kantuk, kelelahan, dan strategi lebih berperan daripada tanjakan di sana`]].map(i => `<div><b>${i[0]}</b>${i[1]}</div>`).join("")
+        }
+        build(); matchMedia("(prefers-color-scheme: dark)").addEventListener("change", build);
+    </script>
+</body>
+
+</html>
